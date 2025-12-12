@@ -1,0 +1,5 @@
+10 rem 幂运算测试
+20 input n
+30 let p = n ^ 3
+40 print p
+50 end

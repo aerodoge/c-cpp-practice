@@ -29,3 +29,13 @@ set(HEADERS
 
 # 创建可执行文件
 add_executable(vm_2206 ${SOURCES} ${HEADERS})
+
+# SML 加载器 (用于运行 compiler_2206 生成的程序)
+set(LOADER_SOURCES
+    src/SMLLoader.cpp
+    src/Instructions.cpp
+    src/InstructionFactory.cpp
+    src/VirtualMachine.cpp
+    src/ProgramBuilder.cpp
+)
+add_executable(sml_loader ${LOADER_SOURCES} ${HEADERS})

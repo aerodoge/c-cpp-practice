@@ -1,0 +1,15 @@
+# 构建目录
+build/
+cmake-build-*/
+
+# 编译生成的 SML 文件
+*.sml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*~
+
+# macOS
+.DS_Store

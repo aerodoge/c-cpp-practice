@@ -1,0 +1,8 @@
+10 rem for循环测试
+20 input n
+30 let s = 0
+40 for i = 1 to n
+50   let s = s + i
+60 next i
+70 print s
+80 end

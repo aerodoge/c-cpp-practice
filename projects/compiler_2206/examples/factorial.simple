@@ -1,0 +1,10 @@
+10 rem 计算阶乘 n!
+20 print "Enter n:"
+30 input n
+40 let f = 1
+50 for i = 1 to n
+60   let f = f * i
+70 next i
+80 print "Factorial ="
+90 print f
+100 end

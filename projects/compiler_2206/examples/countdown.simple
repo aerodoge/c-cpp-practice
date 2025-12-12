@@ -1,0 +1,5 @@
+10 rem 倒计时 (负步长)
+20 for i = 5 to 1 step -1
+30   print i
+40 next i
+50 end

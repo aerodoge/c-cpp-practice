@@ -1,0 +1,6 @@
+10 rem 字符串测试
+20 print "Hi!"
+30 input n
+40 print "n="
+50 print n
+60 end

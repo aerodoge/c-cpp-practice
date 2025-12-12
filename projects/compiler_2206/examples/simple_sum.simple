@@ -1,0 +1,6 @@
+10 rem 计算两数之和 (简化版)
+20 input a
+30 input b
+40 let c = a + b
+50 print c
+60 end

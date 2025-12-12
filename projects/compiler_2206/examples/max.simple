@@ -1,0 +1,10 @@
+10 rem 找出两数中较大的
+20 print "Enter x:"
+30 input x
+40 print "Enter y:"
+50 input y
+60 if x >= y goto 90
+70 print y
+80 goto 100
+90 print x
+100 end

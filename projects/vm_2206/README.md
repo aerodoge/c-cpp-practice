@@ -17,9 +17,9 @@
 vm_2206/
 ├── CMakeLists.txt              # CMake 构建配置
 ├── docs/                       # 文档目录
-│   ├── README.md              # 项目总览
-│   ├── DESIGN.md              # 设计文档
-│   └── INSTRUCTION_SET.md     # 指令集说明
+│   ├── INSTRUCTION_SET.md     # 指令集手册
+│   ├── VM_IMPLEMENTATION.md   # 虚拟机实现原理
+│   └── ...                    # 其他技术文档
 ├── include/vm/                 # 头文件
 │   ├── OpCode.h               # 操作码枚举
 │   ├── VMContext.h            # 虚拟机上下文
@@ -510,6 +510,15 @@ int x = Color::RED;  // 错误！必须显式转换
 1. `OpCode.h` 定义操作码
 2. 创建指令类（继承 `IInstruction`）
 3. `InstructionFactory` 中注册
+
+## 文档
+
+| 文档 | 说明 |
+|------|------|
+| [INSTRUCTION_SET.md](docs/INSTRUCTION_SET.md) | 完整指令集手册，含示例程序 |
+| [VM_IMPLEMENTATION.md](docs/VM_IMPLEMENTATION.md) | 虚拟机实现原理详解 |
+| [DESIGN_PATTERNS_DEEP_DIVE.md](docs/DESIGN_PATTERNS_DEEP_DIVE.md) | 设计模式深入分析 |
+| [CPP20_FEATURES.md](docs/CPP20_FEATURES.md) | C++20 特性应用 |
 
 ## 学习资源
 

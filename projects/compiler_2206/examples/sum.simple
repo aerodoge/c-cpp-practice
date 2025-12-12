@@ -1,0 +1,9 @@
+10 rem 计算两数之和
+20 print "Enter first number:"
+30 input a
+40 print "Enter second number:"
+50 input b
+60 let c = a + b
+70 print "Sum ="
+80 print c
+90 end

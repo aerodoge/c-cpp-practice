@@ -1,0 +1,11 @@
+10 rem 基础功能测试
+20 let a = 10
+30 let b = 3
+40 let c = a + b
+50 print c
+60 let d = a * b
+70 print d
+80 for i = 1 to 3
+90   print i
+100 next i
+110 end

@@ -1,0 +1,26 @@
+10 rem 综合功能测试 (无输入)
+20 rem 算术运算
+30 let a = 10
+40 let b = 3
+50 let c = a + b
+60 print c
+70 let d = a * b
+80 print d
+90 let e = a / b
+100 print e
+110 let f = a % b
+120 print f
+130 rem for 循环
+140 for i = 1 to 3
+150   print i
+160 next i
+170 rem 负步长
+180 for j = 3 to 1 step -1
+190   print j
+200 next j
+210 rem 数组
+220 let a(0) = 100
+230 let a(1) = 200
+240 let s = a(0) + a(1)
+250 print s
+260 end

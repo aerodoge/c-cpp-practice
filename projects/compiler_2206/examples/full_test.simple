@@ -1,0 +1,17 @@
+10 rem 完整功能测试
+20 print "=== Simple Language Test ==="
+30 print "Enter a number:"
+40 input n
+50 print "Calculating 1+2+...+n"
+60 let s = 0
+70 for i = 1 to n
+80   let s = s + i
+90 next i
+100 print "Sum ="
+110 print s
+120 print "Calculating n^2"
+130 let p = n ^ 2
+140 print "Square ="
+150 print p
+160 print "=== Test Complete ==="
+170 end
