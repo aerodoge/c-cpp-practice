@@ -1,6 +1,6 @@
 # 实现原理详解
 
-本文档详细介绍 Simple 语言工具链的实现原理，包括词法分析器、解释器、编译器和 SML 虚拟机。
+本文档详细介绍Simple语言工具链的实现原理，包括词法分析器、解释器、编译器和SML虚拟机。
 
 ## 目录
 
@@ -15,7 +15,7 @@
 
 ### 1.1 概述
 
-词法分析器是编译/解释过程的第一阶段，负责将源代码字符流转换为 Token（词法单元）序列。
+词法分析器是编译/解释过程的第一阶段，负责将源代码字符流转换为Token（词法单元）序列。
 
 ```
 源代码字符串 → [Lexer] → Token 序列
@@ -143,17 +143,17 @@ interpreter_run():
 
 每种语句有独立的执行函数：
 
-| 语句 | 执行逻辑 |
-|------|---------|
-| `rem` | 跳过，什么都不做 |
-| `input x` | 读取输入 → `variables[x].value` |
-| `print x` | 输出 `variables[x].value` |
-| `let x = expr` | 计算表达式 → 赋值 |
-| `goto n` | 查找行号 n → 设置 `current_line_index` |
-| `if cond goto n` | 计算条件，为真则跳转 |
-| `for i = a to b` | 初始化循环变量，压栈 |
-| `next i` | 递增变量，检查条件，决定跳转或出栈 |
-| `end` | 设置 `running = 0` |
+| 语句               | 执行逻辑                             |
+|------------------|----------------------------------|
+| `rem`            | 跳过，什么都不做                         |
+| `input x`        | 读取输入 → `variables[x].value`      |
+| `print x`        | 输出 `variables[x].value`          |
+| `let x = expr`   | 计算表达式 → 赋值                       |
+| `goto n`         | 查找行号 n → 设置 `current_line_index` |
+| `if cond goto n` | 计算条件，为真则跳转                       |
+| `for i = a to b` | 初始化循环变量，压栈                       |
+| `next i`         | 递增变量，检查条件，决定跳转或出栈                |
+| `end`            | 设置 `running = 0`                 |
 
 ### 2.5 表达式解析 (递归下降)
 
@@ -211,7 +211,7 @@ exec_next():
 
 ### 3.1 概述
 
-编译器将 Simple 高级语言翻译为 SML 机器码，采用**两遍扫描 (Two-Pass)** 算法。
+编译器将Simple高级语言翻译为SML机器码，采用**两遍扫描 (Two-Pass)** 算法。
 
 ```
 Simple 源码 → [Pass 1] → SML代码 + 符号表 + 待填充引用
@@ -230,13 +230,14 @@ Simple 源码 → [Pass 1] → SML代码 + 符号表 + 待填充引用
 50 let x = 1    ; 第 50 行在这里
 ```
 
-第一遍扫描时，遇到 `goto 50` 但还没处理到第 50 行，不知道它对应的机器地址。解决方案：
+第一遍扫描时，遇到`goto 50`但还没处理到第50行，不知道它对应的机器地址。解决方案：
+
 - 第一遍：生成代码，记录需要填充的位置
 - 第二遍：所有行号都已知，填充跳转地址
 
 ### 3.3 内存布局
 
-SML 虚拟机只有 100 个内存单元，指令和数据共享：
+SML虚拟机只有100个内存单元，指令和数据共享：
 
 ```
 ┌─────────────────────────────────────────┐
@@ -266,13 +267,13 @@ typedef struct {
 
 **符号类型**：
 
-| 类型 | symbol 含义 | location 含义 |
-|------|------------|---------------|
-| LINE | 行号值 (如 50) | 指令地址 |
-| VARIABLE | 变量索引 (a=0) | 数据地址 |
-| CONSTANT | 常量值 | 数据地址 |
-| ARRAY | 数组标识 | 基地址 |
-| STRING | 字符串 ID | 数据起始地址 |
+| 类型       | symbol 含义  | location 含义 |
+|----------|------------|-------------|
+| LINE     | 行号值 (如 50) | 指令地址        |
+| VARIABLE | 变量索引 (a=0) | 数据地址        |
+| CONSTANT | 常量值        | 数据地址        |
+| ARRAY    | 数组标识       | 基地址         |
+| STRING   | 字符串 ID     | 数据起始地址      |
 
 ### 3.5 第一遍扫描
 
@@ -383,7 +384,7 @@ pass2():
 
 ### 4.1 概述
 
-SML 虚拟机是一个模拟的简单计算机，采用**冯诺依曼架构**和**累加器架构**。
+SML虚拟机是一个模拟的简单计算机，采用**冯诺依曼架构**和**累加器架构**。
 
 ### 4.2 架构特点
 
@@ -420,23 +421,23 @@ typedef struct {
 
 ### 4.5 指令集
 
-| 操作码 | 助记符 | 操作 |
-|--------|--------|------|
-| 10 | READ | `Memory[operand] = input()` |
-| 11 | WRITE | `print(Memory[operand])` |
-| 12 | NEWLINE | `print("\n")` |
-| 13 | WRITES | 输出字符串 |
-| 20 | LOAD | `AC = Memory[operand]` |
-| 21 | STORE | `Memory[operand] = AC` |
-| 30 | ADD | `AC = AC + Memory[operand]` |
-| 31 | SUB | `AC = AC - Memory[operand]` |
-| 32 | DIV | `AC = AC / Memory[operand]` |
-| 33 | MUL | `AC = AC * Memory[operand]` |
-| 34 | MOD | `AC = AC % Memory[operand]` |
-| 40 | JMP | `PC = operand` |
-| 41 | JMPNEG | `if (AC < 0) PC = operand` |
-| 42 | JMPZERO | `if (AC == 0) PC = operand` |
-| 43 | HALT | `running = false` |
+| 操作码 | 助记符     | 操作                          |
+|-----|---------|-----------------------------|
+| 10  | READ    | `Memory[operand] = input()` |
+| 11  | WRITE   | `print(Memory[operand])`    |
+| 12  | NEWLINE | `print("\n")`               |
+| 13  | WRITES  | 输出字符串                       |
+| 20  | LOAD    | `AC = Memory[operand]`      |
+| 21  | STORE   | `Memory[operand] = AC`      |
+| 30  | ADD     | `AC = AC + Memory[operand]` |
+| 31  | SUB     | `AC = AC - Memory[operand]` |
+| 32  | DIV     | `AC = AC / Memory[operand]` |
+| 33  | MUL     | `AC = AC * Memory[operand]` |
+| 34  | MOD     | `AC = AC % Memory[operand]` |
+| 40  | JMP     | `PC = operand`              |
+| 41  | JMPNEG  | `if (AC < 0) PC = operand`  |
+| 42  | JMPZERO | `if (AC == 0) PC = operand` |
+| 43  | HALT    | `running = false`           |
 
 ### 4.6 执行周期 (Fetch-Decode-Execute)
 
@@ -476,7 +477,7 @@ sml_vm_step():
                    │ 是
                    ↓
           ┌──────────────────┐
-          │ 取指: IR=Mem[PC] │
+          │ 取指: IR=Mem[PC]  │
           └────────┬─────────┘
                    ↓
           ┌──────────────────┐
@@ -485,7 +486,7 @@ sml_vm_step():
           └────────┬─────────┘
                    ↓
           ┌──────────────────┐
-          │   执行指令       │
+          │   执行指令        │
           └────────┬─────────┘
                    ↓
           ┌──────────────────┐
@@ -519,7 +520,7 @@ sml_vm_step():
 地址 N-len: 最后一个字符
 ```
 
-执行 WRITES 指令时：
+执行WRITES指令时：
 
 ```c
 case SML_WRITES:
@@ -534,9 +535,9 @@ case SML_WRITES:
 ### 4.9 安全机制
 
 1. **地址检查**: 所有内存访问检查边界 (0-99)
-2. **除零检查**: DIV/MOD 指令检查除数
+2. **除零检查**: DIV/MOD指令检查除数
 3. **循环保护**: 最大执行周期限制 (MAX_CYCLES)
-4. **输入验证**: READ 指令验证输入格式
+4. **输入验证**: READ指令验证输入格式
 
 ---
 
