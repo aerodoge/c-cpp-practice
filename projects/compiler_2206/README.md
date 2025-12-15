@@ -251,6 +251,44 @@ compiler_2206/
 |-----------------------------------------------|-----------------|
 | [SIMPLE_LANGUAGE.md](docs/SIMPLE_LANGUAGE.md) | Simple语言完整语法规范  |
 | [IMPLEMENTATION.md](docs/IMPLEMENTATION.md)   | 编译器/解释器/虚拟机实现原理 |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md)       | 系统架构图 (Mermaid) |
+| [DEBUG.md](docs/DEBUG.md)                     | 调试指南与常见错误       |
+
+## 测试
+
+### 运行单元测试
+
+```bash
+# 构建测试
+cmake -B build -S .
+cmake --build build
+
+# 运行所有测试
+cd build && ctest
+
+# 或单独运行测试
+./build/test_lexer      # 词法分析器测试
+./build/test_compiler   # 编译器测试
+./build/test_sml_vm     # 虚拟机测试
+```
+
+### 性能基准测试
+
+```bash
+./build/benchmark
+```
+
+输出示例:
+```
+=== 词法分析速度 ===
+Lexer: 简单求和              |    10000 |       5.23 ms |       0.52 us
+
+=== 编译速度 ===
+Compile: 简单求和            |     5000 |      15.67 ms |       3.13 us
+
+=== VM 执行速度 (编译后) ===
+VM: 简单求和                 |     5000 |       8.42 ms |       1.68 us
+```
 
 ## 参考资料
 

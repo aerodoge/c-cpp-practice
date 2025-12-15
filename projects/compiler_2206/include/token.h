@@ -5,76 +5,306 @@
  * @file token.h
  * @brief Simple 语言词法单元 (Token) 定义
  *
- * 本文件定义了 Simple 语言词法分析阶段产生的所有 Token 类型。
- * Token 是源代码经过词法分析后的最小语义单元。
+ * ============================================================================
+ *                              词法分析基础
+ * ============================================================================
  *
- * Simple 语言支持:
- * - 字面量: 整数、浮点数、字符串
- * - 关键字: rem, input, print, let, goto, if, for, to, step, next, end
- * - 运算符: +, -, *, /, %, ^ (算术), =, ==, !=, <, >, <=, >= (关系)
- * - 分隔符: (, ), ,
+ * 在编译器/解释器的处理流程中，词法分析 (Lexical Analysis) 是第一阶段：
  *
- * @see lexer.h 词法分析器
+ *   源代码字符串 → [词法分析器] → Token序列 → [语法分析器] → AST → ...
+ *
+ * Token (词法单元) 是源代码经过词法分析后的最小语义单元。
+ * 例如，源代码 "let x = 10 + 20" 会被分解为：
+ *   - TOKEN_LET     "let"
+ *   - TOKEN_IDENT   "x"
+ *   - TOKEN_ASSIGN  "="
+ *   - TOKEN_NUMBER  "10"
+ *   - TOKEN_PLUS    "+"
+ *   - TOKEN_NUMBER  "20"
+ *
+ * ============================================================================
+ *                          Simple 语言支持的词法元素
+ * ============================================================================
+ *
+ * 1. 字面量 (Literals):
+ *    - 整数:   123, 0, 999
+ *    - 浮点数: 3.14, 0.5
+ *    - 字符串: "hello world"
+ *
+ * 2. 标识符 (Identifiers):
+ *    - 变量名: 单个小写字母 a-z
+ *
+ * 3. 关键字 (Keywords):
+ *    rem, input, print, let, goto, if, for, to, step, next, end
+ *
+ * 4. 运算符 (Operators):
+ *    - 算术: +, -, *, /, %, ^ (幂)
+ *    - 关系: =, ==, !=, <, >, <=, >=
+ *
+ * 5. 分隔符 (Delimiters):
+ *    (, ), ,
+ *
+ * @see lexer.h 词法分析器接口
+ * @see lexer.c 词法分析器实现
  */
 
+/**
+ * @enum TokenType
+ * @brief Token 类型枚举
+ *
+ * 定义了 Simple 语言中所有可能的词法单元类型。
+ * 按功能分组：特殊标记、字面量、关键字、运算符、分隔符。
+ */
 typedef enum {
-    // 特殊标记
-    TOKEN_EOF = 0,
-    TOKEN_ERROR,
-    TOKEN_NEWLINE,
+    /* ==================== 特殊标记 ==================== */
 
-    // 字面量
-    TOKEN_NUMBER,      // 整数: 123
-    TOKEN_FLOAT,       // 浮点数: 3.14
-    TOKEN_STRING,      // 字符串: "hello"
-    TOKEN_IDENT,       // 标识符 (变量名): a-z
+    TOKEN_EOF = 0,     /**< 文件结束标记 (End Of File)
+                        *   当词法分析器扫描到源代码末尾时返回此类型。
+                        *   这是一个哨兵值，用于标识输入结束。
+                        */
 
-    // 关键字
-    TOKEN_REM,         // rem (注释)
-    TOKEN_INPUT,       // input
-    TOKEN_PRINT,       // print
-    TOKEN_LET,         // let
-    TOKEN_GOTO,        // goto
-    TOKEN_IF,          // if
-    TOKEN_FOR,         // for
-    TOKEN_TO,          // to
-    TOKEN_STEP,        // step
-    TOKEN_NEXT,        // next
-    TOKEN_END,         // end
+    TOKEN_ERROR,       /**< 错误标记
+                        *   当遇到无法识别的字符或词法错误时返回。
+                        *   此时 Token.text 字段包含错误描述信息。
+                        */
 
-    // 运算符
-    TOKEN_PLUS,        // +
-    TOKEN_MINUS,       // -
-    TOKEN_STAR,        // *
-    TOKEN_SLASH,       // /
-    TOKEN_PERCENT,     // %
-    TOKEN_CARET,       // ^
-    TOKEN_ASSIGN,      // =
+    TOKEN_NEWLINE,     /**< 换行符标记
+                        *   Simple 语言中换行符有语法意义，用于分隔语句。
+                        *   每行必须以行号开始：10 rem comment
+                        */
 
-    // 关系运算符
-    TOKEN_EQ,          // ==
-    TOKEN_NE,          // !=
-    TOKEN_LT,          // <
-    TOKEN_GT,          // >
-    TOKEN_LE,          // <=
-    TOKEN_GE,          // >=
+    /* ==================== 字面量 (Literals) ==================== */
 
-    // 分隔符
-    TOKEN_COMMA,       // ,
-    TOKEN_LPAREN,      // (
-    TOKEN_RPAREN,      // )
+    TOKEN_NUMBER,      /**< 整数字面量
+                        *   匹配模式: [0-9]+
+                        *   例如: 123, 0, 9999
+                        *   值存储在 Token.num_value 字段中。
+                        */
+
+    TOKEN_FLOAT,       /**< 浮点数字面量
+                        *   匹配模式: [0-9]+\.[0-9]+
+                        *   例如: 3.14, 0.5, 100.0
+                        *   注意：编译器会将浮点数截断为整数（SML限制）。
+                        */
+
+    TOKEN_STRING,      /**< 字符串字面量
+                        *   匹配模式: "..."（双引号包围）
+                        *   例如: "hello", "world"
+                        *   不支持转义字符。字符串不能跨行。
+                        */
+
+    TOKEN_IDENT,       /**< 标识符 (变量名)
+                        *   Simple 语言中变量名只能是单个小写字母 a-z。
+                        *   共支持 26 个变量。
+                        *   例如: a, b, x, y, z
+                        */
+
+    /* ==================== 关键字 (Keywords) ==================== */
+    /*
+     * 关键字是具有特殊含义的保留字，不能用作变量名。
+     * Simple 语言的关键字大小写不敏感 (REM = rem = Rem)。
+     */
+
+    TOKEN_REM,         /**< rem - 注释关键字
+                        *   整行作为注释被忽略。
+                        *   语法: 行号 rem 任意文本
+                        *   例如: 10 rem 这是注释
+                        */
+
+    TOKEN_INPUT,       /**< input - 输入关键字
+                        *   从键盘读取值到变量。
+                        *   语法: 行号 input 变量 [, 变量 ...]
+                        *   例如: 20 input x
+                        */
+
+    TOKEN_PRINT,       /**< print - 输出关键字
+                        *   输出表达式的值或字符串。
+                        *   语法: 行号 print 表达式|"字符串" [, ...]
+                        *   例如: 30 print "x=", x
+                        */
+
+    TOKEN_LET,         /**< let - 赋值关键字
+                        *   将表达式的值赋给变量。
+                        *   语法: 行号 let 变量 = 表达式
+                        *   例如: 40 let y = x * 2 + 1
+                        */
+
+    TOKEN_GOTO,        /**< goto - 无条件跳转关键字
+                        *   跳转到指定行号执行。
+                        *   语法: 行号 goto 目标行号
+                        *   例如: 50 goto 20
+                        */
+
+    TOKEN_IF,          /**< if - 条件跳转关键字
+                        *   条件满足时跳转。
+                        *   语法: 行号 if 条件 goto 目标行号
+                        *   例如: 60 if x > 0 goto 100
+                        */
+
+    TOKEN_FOR,         /**< for - 循环开始关键字
+                        *   开始一个计数循环。
+                        *   语法: 行号 for 变量 = 起始 to 结束 [step 步长]
+                        *   例如: 70 for i = 1 to 10 step 2
+                        */
+
+    TOKEN_TO,          /**< to - 循环结束值关键字
+                        *   在 for 语句中指定循环结束值。
+                        *   例如: for i = 1 to 10
+                        */
+
+    TOKEN_STEP,        /**< step - 循环步长关键字
+                        *   在 for 语句中指定步长（可选，默认为1）。
+                        *   支持负步长实现倒计数。
+                        *   例如: for i = 10 to 1 step -1
+                        */
+
+    TOKEN_NEXT,        /**< next - 循环结束关键字
+                        *   标记 for 循环体结束，执行下一次迭代。
+                        *   语法: 行号 next 变量
+                        *   例如: 80 next i
+                        */
+
+    TOKEN_END,         /**< end - 程序结束关键字
+                        *   标记程序正常结束。
+                        *   语法: 行号 end
+                        *   例如: 999 end
+                        */
+
+    /* ==================== 运算符 (Operators) ==================== */
+
+    /* ---------- 算术运算符 ---------- */
+
+    TOKEN_PLUS,        /**< + 加法运算符
+                        *   二元运算: a + b
+                        *   也可用作一元正号: +5
+                        */
+
+    TOKEN_MINUS,       /**< - 减法运算符
+                        *   二元运算: a - b
+                        *   也可用作一元负号: -5
+                        */
+
+    TOKEN_STAR,        /**< * 乘法运算符
+                        *   二元运算: a * b
+                        */
+
+    TOKEN_SLASH,       /**< / 除法运算符
+                        *   二元运算: a / b
+                        *   整数除法（编译器），浮点除法（解释器）
+                        *   注意：除零会产生运行时错误
+                        */
+
+    TOKEN_PERCENT,     /**< % 取模运算符
+                        *   二元运算: a % b
+                        *   返回 a 除以 b 的余数
+                        *   注意：除零会产生运行时错误
+                        */
+
+    TOKEN_CARET,       /**< ^ 幂运算符
+                        *   二元运算: a ^ b (a 的 b 次方)
+                        *   右结合: 2^3^2 = 2^(3^2) = 512
+                        *   编译器仅支持正整数指数
+                        */
+
+    TOKEN_ASSIGN,      /**< = 赋值运算符
+                        *   用于 let 语句: let x = 表达式
+                        *   注意：这不是比较运算符！
+                        */
+
+    /* ---------- 关系运算符 ---------- */
+    /*
+     * 关系运算符用于 if 语句的条件判断。
+     * 返回布尔值：真 (非零) 或 假 (零)。
+     */
+
+    TOKEN_EQ,          /**< == 等于运算符
+                        *   比较两个值是否相等
+                        *   例如: if x == 10 goto 100
+                        */
+
+    TOKEN_NE,          /**< != 不等于运算符
+                        *   比较两个值是否不相等
+                        *   例如: if x != 0 goto 100
+                        */
+
+    TOKEN_LT,          /**< < 小于运算符
+                        *   例如: if x < 10 goto 100
+                        */
+
+    TOKEN_GT,          /**< > 大于运算符
+                        *   例如: if x > 0 goto 100
+                        */
+
+    TOKEN_LE,          /**< <= 小于等于运算符
+                        *   例如: if x <= 100 goto 100
+                        */
+
+    TOKEN_GE,          /**< >= 大于等于运算符
+                        *   例如: if x >= 1 goto 100
+                        */
+
+    /* ==================== 分隔符 (Delimiters) ==================== */
+
+    TOKEN_COMMA,       /**< , 逗号分隔符
+                        *   用于分隔多个变量或表达式
+                        *   例如: input a, b, c
+                        *   例如: print x, y, z
+                        */
+
+    TOKEN_LPAREN,      /**< ( 左括号
+                        *   1. 改变运算优先级: (a + b) * c
+                        *   2. 数组下标访问: a(0), a(i)
+                        */
+
+    TOKEN_RPAREN,      /**< ) 右括号
+                        *   与左括号配对使用
+                        */
 } TokenType;
 
-/* Token 结构 */
+/**
+ * @struct Token
+ * @brief 词法单元结构
+ *
+ * 存储词法分析器产生的一个完整词法单元，包括：
+ * - 类型信息 (type)
+ * - 原始文本 (text)
+ * - 数值（如果是数字）(num_value)
+ * - 源代码位置 (line, column)
+ *
+ * 位置信息用于错误报告，帮助定位问题所在。
+ */
 typedef struct {
-    TokenType type;
-    char text[256];       // 原始文本
-    double num_value;     // 数值 (如果是数字)
-    int line;             // 行号
-    int column;           // 列号
+    TokenType type;       /**< Token 类型，见 TokenType 枚举 */
+
+    char text[256];       /**< 原始文本
+                           *   对于标识符和关键字：存储原始字符串
+                           *   对于数字：存储数字的字符串形式
+                           *   对于字符串：包含双引号
+                           *   对于错误：存储错误描述信息
+                           */
+
+    double num_value;     /**< 数值
+                           *   仅当 type 为 TOKEN_NUMBER 或 TOKEN_FLOAT 时有效
+                           *   存储解析后的数值，避免重复转换
+                           */
+
+    int line;             /**< 行号 (从 1 开始)
+                           *   用于错误报告：指示 Token 在源代码中的行位置
+                           */
+
+    int column;           /**< 列号 (从 1 开始)
+                           *   用于错误报告：指示 Token 在行内的起始位置
+                           */
 } Token;
 
-/* Token 类型名称 (用于调试) */
+/**
+ * @brief 获取 Token 类型的名称字符串 (调试用)
+ * @param type Token 类型
+ * @return 类型名称的字符串表示
+ *
+ * 用于调试输出，将 TokenType 枚举转换为可读字符串。
+ * 例如：token_type_name(TOKEN_LET) 返回 "LET"
+ */
 const char* token_type_name(TokenType type);
 
 #endif /* TOKEN_H */
