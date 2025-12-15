@@ -60,24 +60,24 @@ void sml_vm_init(SML_VM *vm);
 /**
  * @brief 从内存数组加载程序
  * @param vm 虚拟机指针
- * @param memory 程序内存数组 (MEMORY_SIZE 个整数)
+ * @param memory 程序内存数组 (MEMORY_SIZE个整数)
  */
 void sml_vm_load(SML_VM *vm, const int *memory);
 
 /**
  * @brief 从 .sml 文件加载程序
  * @param vm 虚拟机指针
- * @param filename SML 文件路径
- * @return 成功返回 1，失败返回 0
+ * @param filename SML文件路径
+ * @return 成功返回1，失败返回0
  *
  * 文件格式: 每行一个整数 (±XXYY 格式的指令或数据)
  */
 int sml_vm_load_file(SML_VM *vm, const char *filename);
 
 /**
- * @brief 执行程序直到 HALT 或出错
+ * @brief 执行程序直到HALT或出错
  * @param vm 虚拟机指针
- * @return 成功返回 1，错误返回 0
+ * @return 成功返回1，错误返回0
  */
 int sml_vm_run(SML_VM *vm);
 

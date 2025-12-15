@@ -49,14 +49,14 @@ static void set_error(Compiler *comp, const char *format, ...) {
 }
 
 /**
- * 获取下一个 token
+ * 获取下一个token
  */
 static void advance_token(Compiler *comp) {
     comp->current_token = lexer_next_token(&comp->lexer);
 }
 
 /**
- * 生成一条 SML 指令
+ * 生成一条SML指令
  * @param instruction 完整指令 (操作码 * 100 + 操作数)
  */
 static void emit(Compiler *comp, int instruction) {
@@ -230,7 +230,7 @@ static void compile_primary(Compiler *comp);
 
 /**
  * 编译基本元素: 数字、变量、数组元素(常量索引)、括号表达式
- * 注意：数组仅支持常量索引，因为 SML 没有间接寻址
+ * 注意：数组仅支持常量索引，因为SML没有间接寻址
  */
 static void compile_primary(Compiler *comp) {
     Token token = comp->current_token;

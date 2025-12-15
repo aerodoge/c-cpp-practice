@@ -44,7 +44,7 @@ void sml_vm_load(SML_VM *vm, const int *memory) {
 }
 
 /**
- * 从文件加载 SML 程序
+ * 从文件加载SML程序
  */
 int sml_vm_load_file(SML_VM *vm, const char *filename) {
     FILE *file = fopen(filename, "r");

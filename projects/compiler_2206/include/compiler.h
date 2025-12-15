@@ -20,13 +20,13 @@
  *
  * 内存布局 (冯诺依曼架构):
  * ┌─────────────────────────────────────┐
- * │  0: 指令区 (向高地址增长 →)         │
+ * │  0: 指令区 (向高地址增长 →)            │
  * │  ...                                │
  * │  instruction_counter                │
- * │  ─────── 空闲区 ───────             │
+ * │  ─────── 空闲区 ───────              │
  * │  data_counter                       │
  * │  ...                                │
- * │ 99: 数据区 (向低地址增长 ←)         │
+ * │ 99: 数据区 (向低地址增长 ←)            │
  * └─────────────────────────────────────┘
  *
  * 指令格式: ±XXYY
@@ -47,7 +47,7 @@
  * @brief SML 机器指令操作码
  *
  * 与 vm_2206 兼容的指令集:
- * - I/O 指令: 10-13
+ * - I/O指令: 10-13
  * - 数据传输: 20-21
  * - 算术运算: 30-34
  * - 控制流:   40-43
@@ -75,10 +75,10 @@ typedef enum {
  * @brief 符号表条目类型
  */
 typedef enum {
-    SYMBOL_LINE,           /**< 行号标签 (goto/if 跳转目标) */
-    SYMBOL_VARIABLE,       /**< 变量 (a-z, 单字符) */
+    SYMBOL_LINE,           /**< 行号标签(goto/if 跳转目标) */
+    SYMBOL_VARIABLE,       /**< 变量(a-z, 单字符) */
     SYMBOL_CONSTANT,       /**< 整数常量 */
-    SYMBOL_ARRAY,          /**< 数组 (如 a(0), a(1)) */
+    SYMBOL_ARRAY,          /**< 数组(如a(0), a(1)) */
     SYMBOL_STRING,         /**< 字符串常量 */
 } SymbolType;
 
@@ -131,18 +131,18 @@ typedef struct {
  * loop_start:
  *   [循环体代码]
  * LOAD i; ADD step; STORE i   // i = i + step
- * LOAD end; SUB i             // 比较 (正步长)
+ * LOAD end; SUB i             // 比较(正步长)
  * JMPNEG exit / JMPZERO loop  // 条件跳转
  * ```
  */
 #define MAX_FOR_DEPTH 10       /**< 最大循环嵌套深度 */
 typedef struct {
-    char var;                  /**< 循环变量名 (a-z) */
-    int var_location;          /**< 变量 i 的内存位置 */
+    char var;                  /**< 循环变量名(a-z) */
+    int var_location;          /**< 变量i的内存位置 */
     int end_location;          /**< 结束值的内存位置 */
     int step_location;         /**< 步长的内存位置 */
     int loop_start;            /**< 循环体起始指令地址 */
-    int step_is_negative;      /**< 步长是否为负 (影响比较方向) */
+    int step_is_negative;      /**< 步长是否为负(影响比较方向) */
 } ForCompileState;
 
 /**
@@ -167,11 +167,11 @@ typedef struct {
  */
 typedef struct {
     /* ===== 源代码 ===== */
-    char *source;              /**< 源代码副本 (动态分配) */
+    char *source;              /**< 源代码副本(动态分配) */
 
     /* ===== 词法分析 ===== */
     Lexer lexer;               /**< 词法分析器实例 */
-    Token current_token;       /**< 当前 Token (向前看一个) */
+    Token current_token;       /**< 当前Token(向前看一个) */
 
     /* ===== 符号表 ===== */
     Symbol symbols[MAX_SYMBOLS]; /**< 符号表数组 */
@@ -190,12 +190,12 @@ typedef struct {
     int string_count;          /**< 字符串数量 */
 
     /* ===== SML 内存 ===== */
-    int memory[MEMORY_SIZE];   /**< SML 程序内存 (指令+数据) */
-    int instruction_counter;   /**< 指令指针 (从 0 递增) */
-    int data_counter;          /**< 数据指针 (从 99 递减) */
+    int memory[MEMORY_SIZE];   /**< SML 程序内存(指令+数据) */
+    int instruction_counter;   /**< 指令指针(从0递增) */
+    int data_counter;          /**< 数据指针(从99递减) */
 
     /* ===== 编译状态 ===== */
-    int current_line_number;   /**< 当前处理的 Simple 行号 */
+    int current_line_number;   /**< 当前处理的Simple行号 */
 
     /* ===== 错误处理 ===== */
     char error_message[256];   /**< 错误信息 */
@@ -214,7 +214,7 @@ void compiler_init(Compiler *comp);
  * @brief 编译源代码字符串
  * @param comp 编译器指针
  * @param source 源代码字符串
- * @return 成功返回 1，失败返回 0
+ * @return 成功返回1，失败返回0
  */
 int compiler_compile(Compiler *comp, const char *source);
 
@@ -222,15 +222,15 @@ int compiler_compile(Compiler *comp, const char *source);
  * @brief 从文件编译
  * @param comp 编译器指针
  * @param filename 源文件路径
- * @return 成功返回 1，失败返回 0
+ * @return 成功返回1，失败返回0
  */
 int compiler_compile_file(Compiler *comp, const char *filename);
 
 /**
  * @brief 输出 SML 程序到文件
  * @param comp 编译器指针
- * @param filename 输出文件路径 (通常 .sml 后缀)
- * @return 成功返回 1，失败返回 0
+ * @param filename 输出文件路径(通常.sml后缀)
+ * @return 成功返回1，失败返回0
  */
 int compiler_output(Compiler *comp, const char *filename);
 

@@ -3,19 +3,19 @@
  * @brief Simple 语言编译器/解释器主程序
  *
  * 提供四种运行模式:
- * 1. 解释模式 (-i): 直接解释执行 Simple 源代码
- * 2. 编译模式 (-c): 编译为 SML 机器码，输出 .sml 文件
- * 3. 编译运行 (-r): 编译后立即在内置 SML VM 上执行
- * 4. 执行模式 (-x): 直接执行 .sml 文件
- * 5. 交互模式:      无参数启动，提供 REPL 环境
+ * 1. 解释模式 (-i): 直接解释执行Simple源代码
+ * 2. 编译模式 (-c): 编译为SML机器码，输出.sml文件
+ * 3. 编译运行 (-r): 编译后立即在内置SML VM上执行
+ * 4. 执行模式 (-x): 直接执行.sml文件
+ * 5. 交互模式:      无参数启动，提供REPL环境
  *
  * 使用示例:
  * @code
  * ./simple                        # 交互模式
  * ./simple program.simple         # 解释执行
- * ./simple -c program.simple      # 编译生成 .sml
+ * ./simple -c program.simple      # 编译生成.sml
  * ./simple -r program.simple      # 编译并运行
- * ./simple -x program.sml         # 执行 SML 文件
+ * ./simple -x program.sml         # 执行SML文件
  * @endcode
  */
 
@@ -53,7 +53,7 @@ void print_usage(const char *program) {
 /* ==================== 运行模式 ==================== */
 
 /**
- * @brief 解释模式: 直接执行 Simple 源代码
+ * @brief 解释模式: 直接执行Simple源代码
  * @param filename 源文件路径
  */
 void run_interpreter(const char *filename) {
@@ -77,7 +77,7 @@ void run_interpreter(const char *filename) {
 }
 
 /**
- * @brief 交互模式: REPL 环境
+ * @brief 交互模式: REPL环境
  *
  * 允许用户逐行输入程序，支持命令:
  * - run:   执行当前程序
@@ -241,7 +241,7 @@ int main(int argc, char *argv[]) {
 }
 
 /**
- * @brief 编译模式: 编译并显示生成的 SML 代码
+ * @brief 编译模式: 编译并显示生成的SML代码
  * @param filename 源文件路径
  *
  * 输出:
@@ -278,7 +278,7 @@ void run_compiler(const char *filename) {
 }
 
 /**
- * @brief 编译运行模式: 编译后立即在 SML VM 上执行
+ * @brief 编译运行模式: 编译后立即在SML VM上执行
  * @param filename 源文件路径
  *
  * 流程: Simple源码 → 编译 → SML码 → 虚拟机执行

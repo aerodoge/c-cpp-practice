@@ -27,7 +27,7 @@
  */
 typedef struct {
     const char *source;    /**< 完整源代码字符串 */
-    const char *start;     /**< 当前 Token 起始位置 */
+    const char *start;     /**< 当前Token起始位置 */
     const char *current;   /**< 当前扫描位置 (指针) */
     int line;              /**< 当前行号 (从 1 开始) */
     int column;            /**< 当前列号 (从 1 开始) */
@@ -41,16 +41,16 @@ typedef struct {
 void lexer_init(Lexer *lexer, const char *source);
 
 /**
- * @brief 获取下一个 Token (消费型)
+ * @brief 获取下一个Token (消费型)
  * @param lexer 词法分析器指针
- * @return 下一个 Token，到达末尾返回 TOKEN_EOF
+ * @return 下一个Token，到达末尾返回TOKEN_EOF
  */
 Token lexer_next_token(Lexer *lexer);
 
 /**
- * @brief 预览下一个 Token (非消费型)
+ * @brief 预览下一个Token (非消费型)
  * @param lexer 词法分析器指针
- * @return 下一个 Token，不改变词法分析器状态
+ * @return 下一个Token，不改变词法分析器状态
  */
 Token lexer_peek_token(Lexer *lexer);
 
