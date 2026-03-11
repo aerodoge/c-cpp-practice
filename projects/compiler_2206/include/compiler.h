@@ -5,46 +5,46 @@
 
 /**
  * @file compiler.h
- * @brief Simple 语言编译器 - 将高级语言编译为 SML 机器码
+ * @brief Simple语言编译器 - 将高级语言编译为SML机器码
  *
- * 编译器采用经典的两遍扫描 (Two-Pass) 算法:
+ * 编译器采用经典的两遍扫描(Two-Pass)算法:
  *
- * 第一遍 (Pass 1):
- * - 逐行解析 Simple 源代码
- * - 建立符号表 (行号、变量、常量、数组、字符串)
- * - 生成 SML 指令，前向引用处 (如 goto) 留空
+ * 第一遍(Pass 1):
+ * - 逐行解析Simple源代码
+ * - 建立符号表(行号、变量、常量、数组、字符串)
+ * - 生成SML指令，前向引用处(如 goto)留空
  *
- * 第二遍 (Pass 2):
+ * 第二遍(Pass 2):
  * - 解析符号表中的所有行号引用
  * - 填充第一遍中未解决的跳转地址
  *
- * 内存布局 (冯诺依曼架构):
+ * 内存布局(冯诺依曼架构):
  * ┌─────────────────────────────────────┐
- * │  0: 指令区 (向高地址增长 →)            │
+ * │  0: 指令区(向高地址增长 →)             │
  * │  ...                                │
  * │  instruction_counter                │
  * │  ─────── 空闲区 ───────              │
  * │  data_counter                       │
  * │  ...                                │
- * │ 99: 数据区 (向低地址增长 ←)            │
+ * │ 99: 数据区(向低地址增长 ←)             │
  * └─────────────────────────────────────┘
  *
  * 指令格式: ±XXYY
- * - XX: 操作码 (10-43)
- * - YY: 操作数 (内存地址 00-99)
+ * - XX: 操作码(10-43)
+ * - YY: 操作数(内存地址 00-99)
  * - 符号: + 表示正常指令，- 用于负常量存储
  *
- * @see sml_vm.h SML 虚拟机
+ * @see sml_vm.h SML虚拟机
  * @see docs/SIMPLE_LANGUAGE.md 语言规范
  */
 
-#define MEMORY_SIZE 100    /**< SML 内存大小 (指令+数据共享) */
+#define MEMORY_SIZE 100    /**< SML内存大小(指令+数据共享) */
 #define MAX_SYMBOLS 100    /**< 符号表最大条目数 */
 #define MAX_FLAGS 100      /**< 未解决引用最大数量 */
 
 /**
  * @enum SMLOpCode
- * @brief SML 机器指令操作码
+ * @brief SML机器指令操作码
  *
  * 与 vm_2206 兼容的指令集:
  * - I/O指令: 10-13
@@ -227,7 +227,7 @@ int compiler_compile(Compiler *comp, const char *source);
 int compiler_compile_file(Compiler *comp, const char *filename);
 
 /**
- * @brief 输出 SML 程序到文件
+ * @brief 输出SML程序到文件
  * @param comp 编译器指针
  * @param filename 输出文件路径(通常.sml后缀)
  * @return 成功返回1，失败返回0
@@ -235,7 +235,7 @@ int compiler_compile_file(Compiler *comp, const char *filename);
 int compiler_output(Compiler *comp, const char *filename);
 
 /**
- * @brief 打印 SML 程序 (调试用)
+ * @brief 打印SML程序(调试用)
  * @param comp 编译器指针
  *
  * 输出格式:
@@ -245,7 +245,7 @@ int compiler_output(Compiler *comp, const char *filename);
 void compiler_dump(Compiler *comp);
 
 /**
- * @brief 打印符号表 (调试用)
+ * @brief 打印符号表(调试用)
  * @param comp 编译器指针
  */
 void compiler_dump_symbols(Compiler *comp);
@@ -261,13 +261,13 @@ void compiler_free(Compiler *comp);
  * @param comp 编译器指针
  * @return 错误信息字符串
  */
-const char* compiler_get_error(Compiler *comp);
+const char* compiler_get_error(const Compiler *comp);
 
 /**
- * @brief 获取 SML 内存 (用于加载到虚拟机)
+ * @brief 获取SML内存(用于加载到虚拟机)
  * @param comp 编译器指针
  * @return 100 个整数的数组指针
  */
-const int* compiler_get_memory(Compiler *comp);
+const int* compiler_get_memory(const Compiler *comp);
 
 #endif /* COMPILER_H */

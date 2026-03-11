@@ -6,7 +6,7 @@
  *   - 符号表操作
  *   - 基本语句编译
  *   - 表达式编译
- *   - 控制流编译 (goto, if, for)
+ *   - 控制流编译(goto, if, for)
  *   - 两遍扫描的前向引用解析
  *
  * 运行方法:
@@ -257,13 +257,13 @@ void test_compile_for(void) {
     ASSERT_TRUE(comp.instruction_counter > 5);
 
     /* 检查是否有向后跳转 (循环回去) */
-    int found_backward_jump = 0;
+    //int found_backward_jump = 0;
     for (int i = 1; i < comp.instruction_counter; i++) {
         int opcode = comp.memory[i] / 100;
         int target = comp.memory[i] % 100;
         if ((opcode == SML_BRANCH || opcode == SML_BRANCHNEG || opcode == SML_BRANCHZERO)
             && target < i) {
-            found_backward_jump = 1;
+            //found_backward_jump = 1;
             break;
         }
     }

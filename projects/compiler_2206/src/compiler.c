@@ -1,13 +1,13 @@
 /**
  * @file compiler.c
- * @brief Simple 语言编译器实现
+ * @brief Simple语言编译器实现
  *
  * ============================================================================
  *                              编译器原理
  * ============================================================================
  *
- * 编译器将 Simple 高级语言编译成 SML (Simpletron Machine Language) 机器指令。
- * 编译后的程序可以由 SML 虚拟机执行。
+ * 编译器将Simple高级语言编译成SML(Simpletron Machine Language)机器指令。
+ * 编译后的程序可以由SML虚拟机执行。
  *
  * 编译 vs 解释:
  * ┌──────────────────────────────────────────────────────────────────────────┐
@@ -16,72 +16,72 @@
  * └──────────────────────────────────────────────────────────────────────────┘
  *
  * 编译器的优点:
- *   - 执行速度快 (预编译，无需每次解析)
+ *   - 执行速度快(预编译，无需每次解析)
  *   - 可生成可分发的目标文件
  *   - 可以进行更多优化
  *
- * 编译器的限制 (受 SML 指令集限制):
- *   - 仅支持整数运算 (浮点数会被截断)
- *   - 数组索引必须是常量 (SML 无间接寻址)
- *   - 内存限制: 100 单元 (指令 + 数据共享)
+ * 编译器的限制(受SML指令集限制):
+ *   - 仅支持整数运算(浮点数会被截断)
+ *   - 数组索引必须是常量(SML无间接寻址)
+ *   - 内存限制: 100单元(指令 + 数据共享)
  *
  * ============================================================================
  *                              两遍扫描算法 (Two-Pass)
  * ============================================================================
  *
- * 编译器采用经典的两遍扫描 (Two-Pass) 算法解决前向引用问题：
+ * 编译器采用经典的两遍扫描(Two-Pass)算法解决前向引用问题：
  *
- * 问题: goto 可能跳转到后面还未定义的行号
- *   10 goto 100    ← 此时不知道行号 100 对应什么指令地址
+ * 问题: goto可能跳转到后面还未定义的行号
+ *   10 goto 100    ← 此时不知道行号100对应什么指令地址
  *   ...
- *   100 print x    ← 行号 100 在这里定义
+ *   100 print x    ← 行号100在这里定义
  *
  * 解决方案:
  *
- * 第一遍 (Pass 1):
- *   1. 逐行解析 Simple 源代码
+ * 第一遍(Pass 1):
+ *   1. 逐行解析Simple源代码
  *   2. 为每个行号、变量、常量分配内存位置
- *   3. 生成 SML 指令
- *   4. 前向引用 (如 goto 到未知行号) 处留空，记录在 flags 表中
+ *   3. 生成SML指令
+ *   4. 前向引用(如goto到未知行号)处留空，记录在flags表中
  *
- * 第二遍 (Pass 2):
- *   1. 查找 flags 表中所有未解决的引用
+ * 第二遍(Pass 2):
+ *   1. 查找flags表中所有未解决的引用
  *   2. 从符号表中查找目标行号的指令地址
  *   3. 填充第一遍中留空的跳转地址
  *
  * ============================================================================
- *                              内存布局 (冯诺依曼架构)
+ *                              内存布局(冯诺依曼架构)
  * ============================================================================
  *
- * SML 采用冯诺依曼架构，指令和数据共享同一块内存:
+ * SML采用冯诺依曼架构，指令和数据共享同一块内存:
  *
  *   地址    内容
  *   ────────────────────────────────────
- *    0     指令区起始 (从低地址向高增长)
+ *    0     指令区起始(从低地址向高增长)
  *    1     ↓
  *    ...   instruction_counter
  *          ─────── 空闲区 ───────
  *          data_counter
  *    ...   ↑
- *    98    数据区 (从高地址向低增长)
+ *    98    数据区(从高地址向低增长)
  *    99    数据区起始
  *   ────────────────────────────────────
  *
- * 如果 instruction_counter 和 data_counter 相遇，则内存溢出。
+ * 如果instruction_counter和data_counter相遇，则内存溢出。
  *
  * ============================================================================
- *                              SML 指令格式
+ *                              SML指令格式
  * ============================================================================
  *
  * 指令格式: ±XXYY (4位数字)
- *   - XX: 操作码 (10-43)
- *   - YY: 操作数 (内存地址 00-99)
+ *   - XX: 操作码(10-43)
+ *   - YY: 操作数(内存地址 00-99)
  *   - 符号: 正数为指令，负数用于存储负常量
  *
  * 示例:
- *   +1099 → 操作码 10 (READ)，操作数 99 (内存地址 99)
- *   +2099 → 操作码 20 (LOAD)，操作数 99
- *   +4300 → 操作码 43 (HALT)，操作数 00 (无意义)
+ *   +1099 → 操作码10(READ)，操作数99(内存地址 99)
+ *   +2099 → 操作码20(LOAD)，操作数99
+ *   +4300 → 操作码43(HALT)，操作数00(无意义)
  */
 
 #include "compiler.h"
@@ -207,7 +207,7 @@ static Symbol* find_symbol(Compiler *comp, SymbolType type, int symbol) {
  * @param type     符号类型
  * @param symbol   符号值
  * @param location 内存位置
- * @return 新符号指针，失败返回 NULL
+ * @return 新符号指针，失败返回NULL
  */
 static Symbol* add_symbol(Compiler *comp, SymbolType type, int symbol, int location) {
     if (comp->symbol_count >= MAX_SYMBOLS) {
@@ -227,7 +227,7 @@ static Symbol* add_symbol(Compiler *comp, SymbolType type, int symbol, int locat
  * 如果变量已存在，返回其地址；否则分配新地址。
  *
  * @param comp    编译器指针
- * @param var_idx 变量索引 (0-25 对应 a-z)
+ * @param var_idx 变量索引(0-25对应a-z)
  * @return 变量的内存地址
  */
 static int get_or_create_variable(Compiler *comp, int var_idx) {
@@ -271,7 +271,7 @@ static int get_or_create_constant(Compiler *comp, int value) {
 /**
  * @brief 添加未解决的前向引用
  *
- * 当 goto 跳转到还未定义的行号时，记录下来在第二遍处理。
+ * 当goto跳转到还未定义的行号时，记录下来在第二遍处理。
  *
  * @param comp            编译器指针
  * @param instruction_loc 需要修补的指令地址
@@ -297,7 +297,7 @@ static void add_flag(Compiler *comp, int instruction_loc, int target_line) {
  * @param size    数组大小
  * @return 数组基地址
  *
- * 内存布局示例 (数组 a, size=3):
+ * 内存布局示例 (数组a, size=3):
  *   地址 97: a(2)
  *   地址 98: a(1)
  *   地址 99: a(0)  ← 基地址
@@ -330,8 +330,8 @@ static int get_or_create_array(Compiler *comp, int var_idx, int size) {
  * 字符串以长度前缀格式存储: [length][char1][char2]...
  *
  * @param comp 编译器指针
- * @param str  字符串 (包含引号)
- * @return 字符串起始地址 (长度单元的地址)
+ * @param str  字符串(包含引号)
+ * @return 字符串起始地址(长度单元的地址)
  */
 static int store_string(Compiler *comp, const char *str) {
     /* 去掉引号 */
@@ -377,16 +377,16 @@ static int store_string(Compiler *comp, const char *str) {
  *                              表达式编译
  * ============================================================================
  *
- * 表达式编译采用递归下降，与解释器类似，但不是计算值，而是生成 SML 指令。
+ * 表达式编译采用递归下降，与解释器类似，但不是计算值，而是生成SML指令。
  *
- * 核心思想: 每个表达式编译后，结果在累加器 (AC) 中
+ * 核心思想: 每个表达式编译后，结果在累加器(AC)中
  *
  * 例如编译 "x + y":
- *   1. 编译 x → LOAD x_addr  (x 值进入 AC)
+ *   1. 编译 x → LOAD x_addr  (x值进入AC)
  *   2. 保存 AC → STORE temp
- *   3. 编译 y → LOAD y_addr  (y 值进入 AC)
+ *   3. 编译 y → LOAD y_addr  (y值进入AC)
  *   4. 交换  → STORE temp2; LOAD temp
- *   5. 运算  → ADD temp2     (结果在 AC 中)
+ *   5. 运算  → ADD temp2     (结果在AC中)
  */
 
 /* 前向声明 */
@@ -404,7 +404,7 @@ static void compile_primary(Compiler *comp);
  *
  * @param comp 编译器指针
  *
- * 注意: 数组仅支持常量索引，因为 SML 没有间接寻址指令
+ * 注意: 数组仅支持常量索引，因为SML没有间接寻址指令
  */
 static void compile_primary(Compiler *comp) {
     Token token = comp->current_token;
@@ -607,14 +607,14 @@ static void compile_term(Compiler *comp) {
         advance_token(comp);
 
         /* 保存左操作数 */
-        int temp = alloc_data(comp);
+        const int temp = alloc_data(comp);
         emit(comp, SML_STORE * 100 + temp);
 
         /* 编译右操作数 */
         compile_power(comp);
 
         /* 交换操作数: 右存临时，左入 AC */
-        int temp2 = alloc_data(comp);
+        const int temp2 = alloc_data(comp);
         emit(comp, SML_STORE * 100 + temp2);   /* 保存右 */
         emit(comp, SML_LOAD * 100 + temp);     /* 加载左 */
 
@@ -651,7 +651,7 @@ static void compile_expression(Compiler *comp) {
         compile_term(comp);
 
         /* 交换并运算 */
-        int temp2 = alloc_data(comp);
+        const int temp2 = alloc_data(comp);
         emit(comp, SML_STORE * 100 + temp2);
         emit(comp, SML_LOAD * 100 + temp);
 
@@ -901,7 +901,7 @@ static void compile_if(Compiler *comp) {
     compile_expression(comp);
     if (comp->has_error) return;
 
-    int temp_right = alloc_data(comp);
+    const int temp_right = alloc_data(comp);
     emit(comp, SML_STORE * 100 + temp_right);
 
     /* 计算 left - right */
@@ -1364,10 +1364,10 @@ void compiler_free(Compiler *comp) {
     }
 }
 
-const char* compiler_get_error(Compiler *comp) {
+const char* compiler_get_error(const Compiler *comp) {
     return comp->error_message;
 }
 
-const int* compiler_get_memory(Compiler *comp) {
+const int* compiler_get_memory(const Compiler *comp) {
     return comp->memory;
 }

@@ -1,12 +1,12 @@
 /**
  * @file benchmark.c
- * @brief Simple 编译器/解释器性能基准测试
+ * @brief Simple编译器/解释器性能基准测试
  *
  * 测量并比较:
  *   - 词法分析速度
  *   - 编译速度
  *   - 解释执行速度
- *   - VM 执行速度
+ *   - VM执行速度
  *
  * 运行方法:
  *   cd build && ./benchmark

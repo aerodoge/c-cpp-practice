@@ -5,7 +5,7 @@
 
 /**
  * @file interpreter.h
- * @brief Simple 语言解释器
+ * @brief Simple语言解释器
  *
  * 解释器采用"边解析边执行"策略，不生成中间代码：
  * 1. 预处理: 扫描源码建立行号索引
